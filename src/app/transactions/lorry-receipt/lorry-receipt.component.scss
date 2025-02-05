@@ -1,0 +1,118 @@
+.w-15 {
+  width: 16% !important;
+}
+
+.custom-search {
+  color: #FD7E14;
+  border-color: #FD7E14;
+}
+
+.custom-search::placeholder {
+  color: #FD7E14;
+}
+
+.hover-row:hover {
+  background: #FD7E14;
+  color: white;
+  cursor: pointer;
+}
+
+.fas-border-radius {
+  border-radius: 50%;
+}
+
+/* search.component.css */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+  overflow: hidden;
+}
+
+.modal-dialog {
+  position: relative;
+  margin: auto;
+  top: 10%;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.selected {
+  background-color: #007bff;
+  color: white;
+}
+
+.custom-card-height {
+  min-height: 312px;
+  max-height: 312px;
+}
+
+.scrollable-table-body {
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: scroll;
+  position: relative;
+}
+
+/* Custom Branch Modal */
+.custom-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  z-index: 1050;
+  overflow: hidden;
+}
+
+.custom-modal-dialog {
+  position: relative;
+  margin: auto;
+  top: 10%;
+  left: 10%;
+}
+
+
+.fab-container {
+  position: fixed;
+  bottom: 40px;  /* Adjust as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 15px;  /* Space between buttons */
+  z-index: 1000;
+  background: rgba(255,255,255,0.7);
+  padding: 5px;
+  border-radius: 20px;
+}
+
+.fab-button {
+  background: #FD7E14;
+  color: white;
+  width: 120px;
+  height: 35px;
+}
+
+.fab-button:hover {
+  background: #E56A10;
+}
+
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.table-head-text{
+  font-size: 0.8rem;
+}

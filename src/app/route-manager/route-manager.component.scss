@@ -1,0 +1,31 @@
+.custom-search {
+  color: #FD7E14;
+  border-color: #FD7E14;
+}
+
+.custom-search::placeholder {
+  color: #FD7E14;
+}
+
+
+/* Structure */
+table {
+  width: 100%;
+}
+
+.mat-mdc-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+pagination-controls {
+  display: block;
+  margin-top: 15px;
+}
+
+.text-wrap {
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -1,0 +1,50 @@
+.scrollable-container {
+  height: 500px;      /* Set the fixed height */
+  overflow-y: auto;   /* Enable vertical scrolling */
+}
+
+.custom-chat-height {
+  height: 500px;
+}
+
+.custom-chat-height .card-body {
+  height: calc(100% - 10px);
+  overflow-y: auto;
+}
+
+.custom-chat-height .direct-chat-messages {
+  height: 100%;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.direct-chat-primary .right > .direct-chat-text {
+  background-color: #FD7E14;
+  border-color: #FD7E14;
+  color: #fff;
+}
+
+.direct-chat-primary .right > .direct-chat-text::after, .direct-chat-primary .right > .direct-chat-text::before {
+  border-left-color: #FD7E14;
+}
+
+@media (max-width: 900px) {
+  .scrollable-container {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    max-height: 85px;
+  }
+
+  .media {
+    display: inline-block;
+    margin-right: 10px;
+  }
+
+  .img-size-50 {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+

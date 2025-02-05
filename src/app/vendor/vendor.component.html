@@ -1,0 +1,172 @@
+<div class="row">
+  <div class="col-lg-12 mt-2">
+    <div class="card">
+      <div class="card-header bg-orange">
+        <p class="card-title text-white text-md">
+          <i class="fas fa-info-circle mr-2"></i> Vendor Information</p>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-lg-8 col-md-8 col-sm-12">
+            <div class="row">
+              <div class="col-lg-8">
+                <div class="form-group col d-flex align-items-center justify-content-between">
+                  <i class="fas fa-search text-orange mr-2"></i>
+                  <input type="text" class="form-control custom-search" [(ngModel)]="searchVendor" placeholder="Search vendors...">
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <div class="form-group mr-2 ">
+                  <a class="btn btn-block bg-orange" type="button" data-toggle="modal" (click)="resetForm(); openVendorModal()"
+                     data-target="#modal-vendor-default"><span class="text-white"><i class="fas fa-plus mr-1"></i> Add Vendor</span></a>
+                </div>
+              </div>
+            </div>
+            <table class="table table-bordered table-striped">
+              <thead>
+              <tr>
+                <th class="text-sm">Sr. No.</th>
+                <th class="text-sm">Vendor Code</th>
+                <th class="text-sm">Vendor Name</th>
+                <th class="text-sm">Action</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let v of filteredVendors | paginate: { itemsPerPage: itemsPerPage, currentPage: page }; let i = index;" class="text-sm">
+                <td width="80">{{ (page - 1) * itemsPerPage + i + 1 }}</td>
+                <td width="120">{{v.vendorCode}}</td>
+                <td>{{v.vendorName}}</td>
+                <td width="50">
+                  <div class="d-flex">
+                    <div class="col">
+                      <a class="btn btn-sm btn-block btn-outline-warning" (click)="editVendor(v)" type="button"
+                         data-toggle="modal" [attr.data-target]="'#modal-update-vendor-' + i">
+                        <i class="fas fa-edit nav-icon"></i>
+                      </a>
+                    </div>
+                    <div class="col">
+                      <a class="btn btn-sm btn-block btn-outline-danger" type="button"
+                         data-toggle="modal" [attr.data-target]="'#modal-delete-vendor-' + i">
+                        <i class="fas fa-trash nav-icon"></i>
+                      </a>
+                    </div>
+                  </div>
+                </td>
+
+                <div class="modal fade" #modalDefault [attr.id]="'modal-update-vendor-' + i" role="dialog">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header bg-orange">
+                        <p class="modal-title text-white">Edit Vendor - ({{v.vendorName}})</p>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <form [formGroup]="form" (ngSubmit)="updateVendor(modalDefault)">
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col-lg-6">
+                              <input hidden type="text" formControlName="vendorId" class="form-control">
+                              <div class="form-group m-0 pb-2">
+                                <label>Vendor Code.</label>
+                                <input formControlName="vendorCode" type="text" class="form-control" placeholder="Enter vendor code">
+                              </div>
+                            </div>
+                            <div class="col-lg-12">
+                              <div class="form-group m-0 pb-2">
+                                <label>Vendor Name</label>
+                                <input formControlName="vendorName" type="text" class="form-control"
+                                       placeholder="Enter vendor name">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                          <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+                          <button [disabled]="form.invalid" type="submit" class="btn bg-orange" (click)="ngOnInit()"><i
+                            class="text-white fas fa-plus mr-2"></i><span class="text-white">UPDATE NOW</span></button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="modal fade" #modalDefault2 [attr.id]="'modal-delete-vendor-' + i" tabindex="-1" role="dialog"
+                     [attr.aria-labelledby]="'modal-default-label'" [attr.aria-hidden]="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header bg-orange">
+                        <p class="modal-title text-white text-md">Delete Vendor - ({{v.vendorName}})</p>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <div class="p-1 text-center align-items-center justify-content-center">
+                          <p class="text-danger text-md">Do you want to delete the vendor?</p>
+                        </div>
+                      </div>
+                      <div class="modal-footer justify-content-between">
+                        <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+                        <button type="submit" class="btn bg-orange" (click)="deleteVendor(modalDefault2, v.vendorCode); ngOnInit();"><i
+                          class="text-white fas fa-trash mr-2"></i><span class="text-white">DELETE NOW</span></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Pagination controls -->
+        <pagination-controls (pageChange)="page = $event"></pagination-controls>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal structure -->
+<div class="modal fade" #modalDefault4 [ngClass]="{ 'show': isVendorModalOpen }" [style.display]="isVendorModalOpen ? 'block' : 'none'" id="modal-vendor-default" tabindex="-1" role="dialog"
+     aria-labelledby="modal-default-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-orange">
+        <p class="modal-title text-white">Add New Vendor</p>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="false">&times;</span>
+        </button>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="formSubmit(modalDefault4)">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="form-group m-0 pb-2">
+                <label class="text-sm text-muted">Vendor Id</label>
+                <input readonly formControlName="vendorId" type="text" class="form-control" placeholder="Last vendor id">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group m-0 pb-2">
+                <label class="text-sm text-muted">Vendor Code</label>
+                <input formControlName="vendorCode" type="text" class="form-control" placeholder="Enter vendor code">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group m-0 pb-2">
+                <label class="text-sm text-muted">Vendor Name</label>
+                <input formControlName="vendorName" type="text" class="form-control" placeholder="Enter vendor name">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+          <button [disabled]="form.invalid" type="submit" class="btn bg-orange" (click)="ngOnInit()"><i
+            class="text-white fas fa-plus mr-2"></i><span class="text-white">ADD
+              NOW</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

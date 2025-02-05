@@ -1,0 +1,62 @@
+.btn-custom {
+  background-color: #FD7E14;
+  color: white;
+}
+
+.btn-custom:active {
+  background-color: #faa661;
+  color: white;
+}
+
+.custom-control-input {
+  background-color: red;
+}
+
+.custom-search {
+  color: #FD7E14;
+  border-color: #FD7E14;
+}
+
+.custom-search::placeholder {
+  color: #FD7E14;
+}
+
+.customBtn {
+  border-radius: 2px;
+}
+
+
+/* search.component.css */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+  overflow: hidden;
+}
+
+.modal-dialog {
+  position: relative;
+  margin: auto;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.selected {
+  background-color: #007bff;
+  color: white;
+}
+
+.hover-row:hover {
+  background: #FD7E14;
+  color: white;
+  cursor: pointer;
+}
+
