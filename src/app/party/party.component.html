@@ -130,27 +130,45 @@
     </div>
   </div>
 
-  <div class="row">
-    <div class="col">
-      <div class="card">
-        <div class="p-2 d-flex justify-content-center align-items-center">
-          <button [disabled]="form.invalid || !writeEnabled" (click)="ngOnInit()" type="submit" class="btn btn-block m-1 text-white bg-gradient-orange">
-            <i class="fas fa-save nav-icon px-2"></i>Add Party
-          </button>
-          <button type="button" [disabled]="form.invalid  || !updateEnabled" (click)="updatePartyDetails()"
-            class="btn btn-block m-1 text-white bg-gradient-orange ">
-            <i class="fas fa-edit nav-icon px-2"></i>Update Party
-          </button>
-          <button type="button" [disabled]="form.invalid  || !deleteEnabled" data-toggle="modal" data-target="#delete-party-modal"
-            class="btn btn-block m-1 text-white bg-gradient-orange">
-            <i class="fas fa-trash-alt nav-icon px-2"></i>Delete Party
-          </button>
-          <a (click)="cancel()" class="btn btn-block m-1 text-white bg-gradient-orange">
-            <i class="fas fa-times nav-icon px-2"></i>Clear
-          </a>
-        </div>
-      </div>
-    </div>
+<!--  <div class="row">-->
+<!--    <div class="col">-->
+<!--      <div class="card">-->
+<!--        <div class="p-2 d-flex justify-content-center align-items-center">-->
+<!--          <button [disabled]="form.invalid || !writeEnabled" (click)="ngOnInit()" type="submit" class="btn btn-block m-1 text-white bg-gradient-orange">-->
+<!--            <i class="fas fa-save nav-icon px-2"></i>Add Party-->
+<!--          </button>-->
+<!--          <button type="button" [disabled]="form.invalid  || !updateEnabled" (click)="updatePartyDetails()"-->
+<!--            class="btn btn-block m-1 text-white bg-gradient-orange ">-->
+<!--            <i class="fas fa-edit nav-icon px-2"></i>Update Party-->
+<!--          </button>-->
+<!--          <button type="button" [disabled]="form.invalid  || !deleteEnabled" data-toggle="modal" data-target="#delete-party-modal"-->
+<!--            class="btn btn-block m-1 text-white bg-gradient-orange">-->
+<!--            <i class="fas fa-trash-alt nav-icon px-2"></i>Delete Party-->
+<!--          </button>-->
+<!--          <a (click)="cancel()" class="btn btn-block m-1 text-white bg-gradient-orange">-->
+<!--            <i class="fas fa-times nav-icon px-2"></i>Clear-->
+<!--          </a>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+
+  <div class="fab-container">
+    <button [disabled]="form.invalid || !writeEnabled" (click)="ngOnInit()" type="submit" mat-fab class="fab-button">
+      <span class="text-xs"><i class="fas fa-plus mr-2"></i>Create Party</span>
+    </button>
+
+    <button type="button" [disabled]="form.invalid  || !updateEnabled" (click)="updatePartyDetails()" mat-fab class="fab-button">
+      <span class="text-xs"><i class="fas fa-edit mr-2"></i>Update Party</span>
+    </button>
+
+    <button [disabled]="form.invalid  || !deleteEnabled" data-toggle="modal" data-target="#delete-party-modal" type="button" mat-fab class="fab-button">
+      <span class="text-xs"><i class="fas fa-trash mr-2"></i>Delete Party</span>
+    </button>
+
+    <button (click)="cancel()" type="button" mat-fab class="fab-button">
+      <span class="text-xs"><i class="fas fa-times mr-2"></i>Clear Form</span>
+    </button>
   </div>
 </form>
 

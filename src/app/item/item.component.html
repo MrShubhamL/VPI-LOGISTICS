@@ -84,28 +84,26 @@
             </div>
           </div>
         </div>
-        <div class="card-footer p-0">
-          <div class="row">
-            <div class="col">
-              <div class="p-2 d-flex justify-content-center align-items-center">
-                <button [disabled]="form.invalid  || !writeEnabled" type="submit" class="btn btn-block m-1 text-white bg-gradient-orange">
-                  <i class="fas fa-save nav-icon px-2"></i>ADD
-                </button>
-                <button type="button" [disabled]="form.invalid  || !updateEnabled" (click)="editItemData()"
-                        class="btn btn-block m-1 text-white bg-gradient-orange ">
-                  <i class="fas fa-edit nav-icon px-2"></i>EDIT
-                </button>
-                <button type="button" [disabled]="form.invalid  || !deleteEnabled" data-toggle="modal" data-target="#delete-item-modal"
-                        class="btn btn-block m-1 text-white bg-gradient-orange">
-                  <i class="fas fa-trash-alt nav-icon px-2"></i>DELETE
-                </button>
-                <a (click)="cancel()" class="btn btn-block m-1 text-white bg-gradient-orange">
-                  <i class="fas fa-times nav-icon px-2"></i>CANCEL
-                </a>
-              </div>
-            </div>
-          </div>
+
+        <div class="fab-container">
+          <button [disabled]="form.invalid || !writeEnabled" type="submit" mat-fab class="fab-button">
+            <span class="text-xs"><i class="fas fa-plus mr-2"></i>Add Item</span>
+          </button>
+
+          <button type="button" [disabled]="form.invalid  || !updateEnabled" (click)="editItemData()" mat-fab class="fab-button">
+            <span class="text-xs"><i class="fas fa-edit mr-2"></i>Update Item</span>
+          </button>
+
+          <button [disabled]="form.invalid  || !deleteEnabled" data-toggle="modal" data-target="#delete-item-modal" type="button" mat-fab class="fab-button">
+            <span class="text-xs"><i class="fas fa-trash mr-2"></i>Delete Item</span>
+          </button>
+
+          <button (click)="cancel()" type="button" mat-fab class="fab-button">
+            <span class="text-xs"><i class="fas fa-times mr-2"></i>Clear Form</span>
+          </button>
         </div>
+
+
       </div>
     </div>
   </form>
@@ -113,7 +111,7 @@
 
 
 <div class="modal fade" [ngClass]="{ 'show': isModalOpen }" [style.display]="isModalOpen ? 'block' : 'none'">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-custom-route-dialog modal-sm">
     <div class="modal-content">
       <div class="modal-header bg-orange">
         <p class="modal-title text-white">Route Information</p>
@@ -123,14 +121,14 @@
       </div>
       <div class="modal-body">
         <table class="table table-bordered table-hover">
-          <thead>
+          <thead class="text-xs">
           <tr>
             <th hidden>Select</th>
             <th>Route No.</th>
             <th>Route Name</th>
           </tr>
           </thead>
-          <tbody>
+          <tbody class="text-xs">
           <tr *ngFor="let route of filteredData" (click)="selectRow(route)" [class.selected]="route === selectedItem">
             <td hidden>
               <input type="radio" name="selectedItem" [checked]="route === selectedItem"/>
@@ -149,7 +147,7 @@
 </div>
 
 <div class="modal fade" [ngClass]="{ 'show': isModalOpen2 }" [style.display]="isModalOpen2 ? 'block' : 'none'">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-custom-party-dialog">
     <div class="modal-content">
       <div class="modal-header bg-orange">
         <p class="modal-title text-white">Party Information</p>
@@ -159,14 +157,14 @@
       </div>
       <div class="modal-body">
         <table class="table table-bordered table-hover">
-          <thead>
+          <thead class="text-xs">
           <tr>
             <th hidden>Select</th>
             <th>Party Code.</th>
             <th>Party Name</th>
           </tr>
           </thead>
-          <tbody>
+          <tbody class="text-xs">
           <tr *ngFor="let party of filteredPartyData" (click)="selectRow2(party)"
               [class.selected]="party === selectedItem2">
             <td hidden>
@@ -185,19 +183,18 @@
   </div>
 </div>
 
-
 <div class="modal fade" [ngClass]="{ 'show': isModalOpen3 }" [style.display]="isModalOpen3 ? 'block' : 'none'">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header bg-orange">
-        <p class="modal-title text-white">Item Information</p>
+        <p class="modal-title text-white text-xs">Item Information</p>
         <button (click)="closeItemModal()" type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="false">&times;</span>
         </button>
       </div>
       <div class="modal-body">
         <table id="example1" class="table table-bordered table-striped">
-          <thead>
+          <thead class="text-xs">
           <tr class="text-center align-items-center justify-content-center">
             <th hidden>Select</th>
             <th>Item Code</th>
@@ -213,7 +210,7 @@
             <th>Item Date</th>
           </tr>
           </thead>
-          <tbody>
+          <tbody class="text-xs">
           <tr class="hover-row" *ngFor="let item of filteredItemData; let i = index;" (click)="selectItemRow(item)"
               [class.selected]="item === selectedItem3">
             <td hidden>

@@ -2,6 +2,8 @@ import {Component, inject} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {ApiService} from '../../services/api/api.service';
 import {StorageService} from '../../services/storage/storage.service';
+import {WebSocketService} from '../../services/api/web-socket.service';
+import {map, Observable, startWith} from 'rxjs';
 
 declare var $: any;
 
@@ -14,14 +16,17 @@ declare var $: any;
 export class LorryReceiptComponent {
   form!: FormGroup;
   latestLorryNo: any;
-  latestMemoNo: any;
+  lastMemoNo: any;
+
+  isMemoFound: boolean = false;
+
   itemSearchQuery: any = '';
   total_amount: number = 0;
   total_charges_amount: number = 0;
-  lrStatus: boolean = false;
-
+  currentRole: any = '';
   listItemData: any[] = [];
   listChargesData: any[] = [];
+  listVehicleData: any[] = [];
 
   // ----- ITEM SEARCH -----
   filteredItemData: any[] = [];
@@ -48,17 +53,23 @@ export class LorryReceiptComponent {
   isPartyModalOpen: boolean = false;
   selectedPartyItem: any = null;
 
-  // ------ VENDOR SEARCH -------
-  filteredVendorData: any[] = [];
-  vendorData: any[] = [];
-  isVendorModalOpen: boolean = false;
-  selectedVendorItem: any = null;
+  // ------ PARTY SEARCH -------
+  filteredPartyData2: any[] = [];
+  partyData2: any[] = [];
+  isPartyModalOpen2: boolean = false;
+  selectedPartyItem2: any = null;
 
   // ------ VENDOR SEARCH -------
   filteredLrData: any[] = [];
   LrData: any[] = [];
   isLrModalOpen: boolean = false;
   selectedLrItem: any = null;
+
+  // ------ VEHICLE SEARCH -------
+  filteredVehicleData: any[] = [];
+  vehicleData: any[] = [];
+  isVehicleModalOpen: boolean = false;
+  selectedVehicleItem: any = null;
 
 
   readEnabled: boolean = false;
@@ -71,98 +82,103 @@ export class LorryReceiptComponent {
   formBuilder = inject(FormBuilder);
   apiService = inject(ApiService);
   storageService = inject(StorageService);
+  webSocketService = inject(WebSocketService);
 
+  placeholders = {
+    latestLorryNo: '',
+    latestMemoNo: ''
+  }
 
   constructor() {
     this.form = this.formBuilder.group({
-      lrNo: new FormControl('Loading..'),
-      lrSearchQuery: new FormControl(null),
-
+      lrId: new FormControl(""),
+      lrNo: new FormControl("", Validators.required),
+      lrSearchQuery: new FormControl(""),
       branch: this.formBuilder.group({
-        branchNo: new FormControl(''),
-        branchName: new FormControl(''),
+        branchNo: new FormControl("", Validators.required),
+        branchName: new FormControl(""),
       }),
-
       route: this.formBuilder.group({
-        routeNo: new FormControl(''),
-        routeName: new FormControl(''),
-        gstType: new FormControl(''),
+        routeNo: new FormControl("", Validators.required),
+        routeName: new FormControl(""),
+        gstType: new FormControl(""),
       }),
-
-      party: this.formBuilder.group({
-        partyNo: new FormControl(''),
-        partyName: new FormControl(''),
+      consignor: this.formBuilder.group({
+        partyNo: new FormControl("", Validators.required),
+        partyName: new FormControl(""),
       }),
-
-      vendor: this.formBuilder.group({
-        vendorId: new FormControl(''),
-        vendorCode: new FormControl(''),
-        vendorName: new FormControl('')
+      consignee: this.formBuilder.group({
+        partyNo: new FormControl("", Validators.required),
+        partyName: new FormControl(""),
       }),
-      remark: new FormControl(''),
-      whoItemList: new FormControl(''),
-
-      memoNo: new FormControl(''),
-      octBill: new FormControl(''),
-
-      chalanNo: new FormControl(''),
-      chalanDate: new FormControl(''),
-
-      billNo: new FormControl(''),
-      billDate: new FormControl(''),
-
-      unloadDate: new FormControl(''),
-      memoDate: new FormControl(''),
-
-      lrDate: new FormControl(''),
-      refTruckNo: new FormControl(''),
-
+      remark: new FormControl(""),
+      whoItemList: new FormControl(""),
+      octBill: new FormControl(""),
+      lrDate: new FormControl(""),
+      toPay: new FormControl(""),
+      whoPay: new FormControl(""),
+      octroiPay: new FormControl(""),
+      refTruckNo: new FormControl(""),
       lorryReceiptItems: this.formBuilder.group({
-        lorryReceiptItemId: new FormControl(''),
         item: this.formBuilder.group({
-          itemNo: new FormControl(''),
-          itemName: new FormControl(''),
-          itemDate: new FormControl(''),
-          partNo: new FormControl(''),
-          qtyInBox: new FormControl(''),
-          weightPerBox: new FormControl(''),
-          rateOnBox: new FormControl(''),
-          rateOnWeight: new FormControl(''),
-          pu: new FormControl(''),
+          itemNo: new FormControl(""),
+          itemName: new FormControl(""),
+          itemDate: new FormControl(""),
+          partNo: new FormControl(""),
+          qtyInBox: new FormControl(""),
+          weightPerBox: new FormControl(""),
+          rateOnBox: new FormControl(""),
+          rateOnWeight: new FormControl(""),
+          pu: new FormControl(""),
+          vendorCode: new FormControl(""),
         }),
-        quantity: new FormControl(''),
-        lcvFtl: new FormControl(null),
-        calcOn: new FormControl(null),
+        quantity: new FormControl(""),
+        lcvFtl: new FormControl(""),
+        calcOn: new FormControl("WEIGHT"),
+        totalWeight: new FormControl(""),
+        amount: new FormControl(""),
       }),
-
-      lrNote: new FormControl(''),
-      stCharges: new FormControl(''),
-
       extraCharges: this.formBuilder.group({
-        extraChargesId: new FormControl(''),
-        chargesHeads: new FormControl(''),
-        chargesAmount: new FormControl(''),
+        extraChargesId: new FormControl(""),
+        chargesHeads: new FormControl(""),
+        chargesAmount: new FormControl(""),
       }),
-
-      deliveryAt: new FormControl(''),
-      asnNo: new FormControl(''),
-      packType: new FormControl(''),
-      valueRs: new FormControl(''),
-      valueOnChalan: new FormControl(''),
-
-      whoPay: new FormControl(''),
-      octroiPay: new FormControl(''),
-
-      totalFreight: new FormControl(''),
-      cgst: new FormControl(''),
-      sgst: new FormControl(''),
-      igst: new FormControl(''),
-
-      grandTotal: new FormControl('', Validators.required),
-    });
+      memo: this.formBuilder.group({
+        memoId: new FormControl(""),
+        memoNo: new FormControl("", Validators.required),
+        memoDate: new FormControl(""),
+        memoStatus: true
+      }),
+      chalan: this.formBuilder.group({
+        chalanId: new FormControl(""),
+        chalanNo: new FormControl("", Validators.required),
+        chalanDate: new FormControl(""),
+        valueOnChalan: new FormControl(""),
+      }),
+      bill: this.formBuilder.group({
+        billId: new FormControl(""),
+        billNo: new FormControl(""),
+        billDate: new FormControl(""),
+        unloadDate: new FormControl(""),
+      }),
+      finalTotal: new FormControl(""),
+      cgst: new FormControl(""),
+      sgst: new FormControl(""),
+      igst: new FormControl(""),
+      totalFreight: new FormControl(""),
+      grandTotal: new FormControl(""),
+      deliveryAt: new FormControl(""),
+      packType: new FormControl("select"),
+      asnNo: new FormControl(""),
+      valueRs: new FormControl(""),
+      lrNote: new FormControl(""),
+      stCharges: new FormControl(""),
+      lrStatus: true
+    })
   }
 
   ngOnInit() {
+    this.currentRole = this.storageService.getUserRole();
     // All Item Data
     this.apiService.getAllItems().subscribe(res => {
       this.itemData = res;
@@ -192,15 +208,7 @@ export class LorryReceiptComponent {
     this.apiService.getAllParties().subscribe(res => {
       if (res) {
         this.partyData = res;
-      }
-    }, error => {
-      console.log(error)
-    });
-
-    // All Vendor Data
-    this.apiService.getAllVendors().subscribe(res => {
-      if (res) {
-        this.vendorData = res;
+        this.partyData2 = res;
       }
     }, error => {
       console.log(error)
@@ -209,7 +217,7 @@ export class LorryReceiptComponent {
     this.apiService.getLatestLorryNo().subscribe(res => {
       if (res) {
         this.latestLorryNo = res;
-        this.form.get('lrNo')?.setValue(this.latestLorryNo.newLrNo);
+        this.placeholders.latestLorryNo = this.latestLorryNo.newLrNo;
       }
     }, error => {
       console.log(error)
@@ -217,18 +225,28 @@ export class LorryReceiptComponent {
 
     this.apiService.getLatestMemoNo().subscribe(res => {
       if (res) {
-        this.latestMemoNo = res;
-        this.form.get('memoNo')?.setValue(this.latestMemoNo.newMemoNo);
+        this.lastMemoNo = res;
+        this.placeholders.latestMemoNo = this.lastMemoNo.lastMemoNo;
       }
     }, error => {
       console.log(error)
     });
 
-    this.apiService.getAllLorries().subscribe(res=>{
-      if(res) {
-        this.LrData = res;
+    this.apiService.getAllVehicles().subscribe(res => {
+      if (res) {
+        this.listVehicleData= res;
+        console.log(this.listVehicleData)
       }
-    }, err=>{
+    }, err => {
+      console.log(err)
+    });
+
+    this.apiService.getAllLorries().subscribe(res => {
+      if (res) {
+        this.LrData = res;
+        console.log(this.LrData)
+      }
+    }, err => {
       console.log(err)
     });
 
@@ -278,6 +296,7 @@ export class LorryReceiptComponent {
     const totalChargesAmount = this.form.get('extraCharges.chargesAmount')?.value;
     this.total_charges_amount += totalChargesAmount;
     const extraCharges = {
+      extraChargesId: this.form.get('extraCharges.extraChargesId')?.value,
       chargesHeads: this.form.get('extraCharges.chargesHeads')?.value,
       chargesAmount: this.form.get('extraCharges.chargesAmount')?.value,
     };
@@ -302,18 +321,26 @@ export class LorryReceiptComponent {
     this.form.get('branch.branchNo')?.enable()
     this.form.get('route.routeNo')?.enable()
     this.form.get('party.partyNo')?.enable()
+    this.form.get("memo.memoNo")?.enable();
+    this.form.get('lrNo')?.enable();
+    this.form.get('lorryReceiptItems.calcOn')?.setValue('WEIGHT')
+    this.form.get('packType')?.setValue('select')
     this.listItemData = [];
     this.listChargesData = [];
     this.total_amount = 0.0;
     this.total_charges_amount = 0.0;
-    this.lrStatus = false;
+    this.isMemoFound = false;
   }
 
   addItems() {
     let route = this.form.get('route.routeNo')?.value;
-    if(route){
-      const totalCalWeight = (this.form.get('lorryReceiptItems.quantity')?.value) * (this.form.get('lorryReceiptItems.item.weightPerBox')?.value);
-      const totalCalAmount = totalCalWeight * (this.form.get('lorryReceiptItems.item.rateOnWeight')?.value);
+    if (route) {
+      let totalCalWeight = (this.form.get('lorryReceiptItems.quantity')?.value) * (this.form.get('lorryReceiptItems.item.weightPerBox')?.value);
+      let totalCalAmount = totalCalWeight * (this.form.get('lorryReceiptItems.item.rateOnWeight')?.value);
+      let calOn = this.form.get('lorryReceiptItems.calcOn')?.value;
+      if (calOn != 'WEIGHT') {
+        totalCalAmount = 0.00
+      }
       this.total_amount += totalCalAmount;
 
       const items = {
@@ -332,10 +359,9 @@ export class LorryReceiptComponent {
         amount: totalCalAmount
       }
       this.listItemData.push(items);
-      console.log(this.listItemData)
       this.resetItemArray();
       this.calculateGST();
-    }else{
+    } else {
       $.toast({
         heading: 'Invalid Route Details!',
         text: 'Please select route before add item list! ',
@@ -348,10 +374,18 @@ export class LorryReceiptComponent {
     }
   }
 
-  calculateGST(){
+  transformToUppercase(event: any) {
+    event.target.value = event.target.value.toUpperCase();
+  }
+
+  recalculateGST(event: any) {
+    this.total_amount = Number(event.target.value);
+    this.calculateGST();
+  }
+
+  calculateGST() {
     const totalCalculatedAmount = Number(this.total_amount + this.total_charges_amount).toFixed(2);
     let gstType = this.form.get("route.gstType")?.value;
-    console.log(totalCalculatedAmount);
     const cgst = 6; // 6%
     const sgst = 6; // 6%
     const igst = 12; // 12%
@@ -363,27 +397,26 @@ export class LorryReceiptComponent {
 
     if (gstType === 'in-state') {
       gstAmount = (Number(totalCalculatedAmount) * (cgst + sgst)) / 100;
-      cgstAmount = Number(gstAmount)/2;
-      sgstAmount = Number(gstAmount)/2;
+      cgstAmount = Number(gstAmount) / 2;
+      sgstAmount = Number(gstAmount) / 2;
       netAmount = Number(totalCalculatedAmount) + gstAmount;
 
-      if(this.total_charges_amount == 0){
+      if (this.total_charges_amount == 0) {
         this.form.get('totalFreight')?.setValue(this.total_amount.toFixed(2));
-      }else{
+      } else {
         this.form.get('totalFreight')?.setValue(Number(totalCalculatedAmount).toFixed(2));
       }
       this.form.get('cgst')?.setValue(cgstAmount.toFixed(2));
       this.form.get('sgst')?.setValue(sgstAmount.toFixed(2));
       this.form.get('igst')?.setValue(0.00);
       this.form.get('grandTotal')?.setValue(netAmount.toFixed(2));
-    }
-    else if (gstType === 'out-state') {
+    } else if (gstType === 'out-state') {
       gstAmount = (Number(totalCalculatedAmount) * igst) / 100;
       netAmount = Number(totalCalculatedAmount) + gstAmount;
 
-      if(this.total_charges_amount == 0){
+      if (this.total_charges_amount == 0) {
         this.form.get('totalFreight')?.setValue(this.total_amount.toFixed(2));
-      }else{
+      } else {
         this.form.get('totalFreight')?.setValue(Number(totalCalculatedAmount).toFixed(2));
       }
       this.form.get('cgst')?.setValue(0.00);
@@ -406,143 +439,86 @@ export class LorryReceiptComponent {
 
   resetItemArray() {
     this.form.get('lorryReceiptItems')?.reset();
+    this.form.get('lorryReceiptItems.calcOn')?.setValue('WEIGHT')
   }
 
   resetChargesArray() {
     this.form.get('extraCharges')?.reset();
   }
 
-  formSubmit() {
-    const formObj = {
-      lrNo: this.form.get('lrNo')?.value,
-      branch: {
-        branchNo: this.form.get('branch.branchNo')?.value
-      },
-      route: {
-        routeNo: this.form.get('route.routeNo')?.value,
-        gstType: this.form.get('route.gstType')?.value,
-      },
-      party: {
-        partyNo: this.form.get('party.partyNo')?.value
-      },
-      vendor: {
-        vendorId: this.form.get('vendor.vendorId')?.value
-      },
-      remark: this.form.get('remark')?.value,
-      whoItemList: this.form.get('whoItemList')?.value,
-      memoNo: this.form.get('memoNo')?.value,
-      octBill: this.form.get('octBill')?.value,
-      chalanNo: this.form.get('chalanNo')?.value,
-      chalanDate: this.form.get('chalanDate')?.value,
-      billNo: this.form.get('billNo')?.value,
-      billDate: this.form.get('billDate')?.value,
-      unloadDate: this.form.get('unloadDate')?.value,
-      memoDate: this.form.get('memoDate')?.value,
-      lrDate: this.form.get('lrDate')?.value,
-      refTruckNo: this.form.get('refTruckNo')?.value,
-      lorryReceiptItems: this.listItemData,
-      lrNote: this.form.get('lrNote')?.value,
-      stCharges: this.form.get('stCharges')?.value,
-      extraCharges: this.listChargesData,
-      deliveryAt: this.form.get('deliveryAt')?.value,
-      asnNo: this.form.get('asnNo')?.value,
-      packType: this.form.get('packType')?.value,
-      valueRs: this.form.get('valueRs')?.value,
-      valueOnChalan: this.form.get('valueOnChalan')?.value,
-      whoPay: this.form.get('whoPay')?.value,
-      octroiPay: this.form.get('octroiPay')?.value,
-      totalFreight: this.form.get('totalFreight')?.value,
-      cgst: this.form.get('cgst')?.value,
-      sgst: this.form.get('sgst')?.value,
-      igst: this.form.get('igst')?.value,
-      grandTotal: this.form.get('grandTotal')?.value,
-      lrStatus: this.lrStatus
-    }
-    this.apiService.addLorryReceipt(formObj).subscribe(res=>{
-      if(res){
-        this.resetForm();
-        $.toast({
-          heading: 'Lorry Receipt Added!!',
-          text: 'You have successfully added new Lorry Receipt.',
-          showHideTransition: 'fade',
-          icon: 'success',
-          position: 'bottom-right',
-          bgColor: '#41a918',
-          loader: false,
-        });
-      }
-    }, err=>{
-      $.toast({
-        heading: 'Invalid Information!',
-        text: 'Please re-login and try again!!' + err,
-        showHideTransition: 'fade',
-        icon: 'info',
-        position: 'bottom-right',
-        bgColor: '#1898a9',
-        loader: false,
-      });
-    });
-  }
-
-  updateLr(){
-    if(!this.form.invalid){
+  updateLr() {
+    if (!this.form.invalid) {
       const formObj = {
+        lrId: this.form.get('lrId')?.value,
         lrNo: this.form.get('lrNo')?.value,
         branch: {
           branchNo: this.form.get('branch.branchNo')?.value
         },
         route: {
           routeNo: this.form.get('route.routeNo')?.value,
-          gstType: this.form.get('route.gstType')?.value,
         },
-        party: {
-          partyNo: this.form.get('party.partyNo')?.value
+        consignor: {
+          partyNo: this.form.get('consignor.partyNo')?.value
         },
-        vendor: {
-          vendorId: this.form.get('vendor.vendorId')?.value
+        consignee: {
+          partyNo: this.form.get('consignee.partyNo')?.value
         },
         remark: this.form.get('remark')?.value,
         whoItemList: this.form.get('whoItemList')?.value,
-        memoNo: this.form.get('memoNo')?.value,
         octBill: this.form.get('octBill')?.value,
-        chalanNo: this.form.get('chalanNo')?.value,
-        chalanDate: this.form.get('chalanDate')?.value,
-        billNo: this.form.get('billNo')?.value,
-        billDate: this.form.get('billDate')?.value,
-        unloadDate: this.form.get('unloadDate')?.value,
-        memoDate: this.form.get('memoDate')?.value,
         lrDate: this.form.get('lrDate')?.value,
+        whoPay: this.form.get('whoPay')?.value,
+        octroiPay: this.form.get('octroiPay')?.value,
         refTruckNo: this.form.get('refTruckNo')?.value,
         lorryReceiptItems: this.listItemData,
+        extraCharges: this.listChargesData,
+        memo: {
+          memoId: this.form.get('memo.memoId')?.value,
+          memoNo: this.form.get('memo.memoNo')?.value,
+          memoDate: this.form.get('memo.memoDate')?.value,
+        },
+        chalan: {
+          chalanId: this.form.get('chalan.chalanId')?.value,
+          chalanNo: this.form.get('chalan.chalanNo')?.value,
+          chalanDate: this.form.get('chalan.chalanDate')?.value,
+          valueOnChalan: this.form.get('chalan.valueOnChalan')?.value
+        },
+        bill: {
+          billId: this.form.get('bills.billId')?.value,
+          billNo: this.form.get('bills.billNo')?.value,
+          billDate: this.form.get('bills.billDate')?.value,
+          unloadDate: this.form.get('unloadDate')?.value,
+        },
         lrNote: this.form.get('lrNote')?.value,
         stCharges: this.form.get('stCharges')?.value,
-        extraCharges: this.listChargesData,
         deliveryAt: this.form.get('deliveryAt')?.value,
         asnNo: this.form.get('asnNo')?.value,
         packType: this.form.get('packType')?.value,
         valueRs: this.form.get('valueRs')?.value,
-        valueOnChalan: this.form.get('valueOnChalan')?.value,
-        whoPay: this.form.get('whoPay')?.value,
-        octroiPay: this.form.get('octroiPay')?.value,
         totalFreight: this.form.get('totalFreight')?.value,
         cgst: this.form.get('cgst')?.value,
         sgst: this.form.get('sgst')?.value,
         igst: this.form.get('igst')?.value,
         grandTotal: this.form.get('grandTotal')?.value,
-        lrStatus: this.lrStatus
+        lrStatus: false
       }
-      this.apiService.updateLorryReceipt(formObj).subscribe(res=>{
-        this.resetForm();
-        $.toast({
-          heading: 'Lorry Receipt Updated!!',
-          text: 'You have successfully updated the LR.',
-          showHideTransition: 'fade',
-          icon: 'success',
-          position: 'bottom-right',
-          bgColor: '#41a918',
-          loader: false,
-        });
-      }, err=>{
+
+      this.apiService.updateLorryReceipt(formObj).subscribe(res => {
+        if (res) {
+          this.resetForm();
+          let message = "New LR Update Request!!,  New Lorry Receipt Update Request is Coming..";
+          this.webSocketService.sendMessage('/app/sendMessage', message, 'LR-UPDATE-REQUEST');
+          $.toast({
+            heading: 'Lorry Receipt Updated!!',
+            text: 'You have successfully updated the LR.',
+            showHideTransition: 'fade',
+            icon: 'success',
+            position: 'bottom-right',
+            bgColor: '#41a918',
+            loader: false,
+          });
+        }
+      }, err => {
         $.toast({
           heading: 'Invalid Information!',
           text: 'Please re-login and try again!!' + err,
@@ -556,7 +532,7 @@ export class LorryReceiptComponent {
     }
   }
 
-  saveLr(){
+  saveLr() {
     const formObj = {
       lrNo: this.form.get('lrNo')?.value,
       branch: {
@@ -564,46 +540,52 @@ export class LorryReceiptComponent {
       },
       route: {
         routeNo: this.form.get('route.routeNo')?.value,
-        gstType: this.form.get('route.gstType')?.value,
       },
-      party: {
-        partyNo: this.form.get('party.partyNo')?.value
+      consignor: {
+        partyNo: this.form.get('consignor.partyNo')?.value
       },
-      vendor: {
-        vendorId: this.form.get('vendor.vendorId')?.value
+      consignee: {
+        partyNo: this.form.get('consignee.partyNo')?.value
       },
       remark: this.form.get('remark')?.value,
       whoItemList: this.form.get('whoItemList')?.value,
-      memoNo: this.form.get('memoNo')?.value,
       octBill: this.form.get('octBill')?.value,
-      chalanNo: this.form.get('chalanNo')?.value,
-      chalanDate: this.form.get('chalanDate')?.value,
-      billNo: this.form.get('billNo')?.value,
-      billDate: this.form.get('billDate')?.value,
-      unloadDate: this.form.get('unloadDate')?.value,
-      memoDate: this.form.get('memoDate')?.value,
       lrDate: this.form.get('lrDate')?.value,
+      whoPay: this.form.get('whoPay')?.value,
+      octroiPay: this.form.get('octroiPay')?.value,
       refTruckNo: this.form.get('refTruckNo')?.value,
       lorryReceiptItems: this.listItemData,
+      extraCharges: this.listChargesData,
+      memo: {
+        memoDate: this.form.get('memo.memoDate')?.value,
+        memoNo: this.form.get('memo.memoNo')?.value,
+      },
+      chalan: {
+        chalanNo: this.form.get('chalan.chalanNo')?.value,
+        chalanDate: this.form.get('chalan.chalanDate')?.value,
+        valueOnChalan: this.form.get('chalan.valueOnChalan')?.value
+      },
+      bill: {
+        billNo: this.form.get('bills.billNo')?.value,
+        billDate: this.form.get('bills.billDate')?.value,
+        unloadDate: this.form.get('unloadDate')?.value,
+      },
       lrNote: this.form.get('lrNote')?.value,
       stCharges: this.form.get('stCharges')?.value,
-      extraCharges: this.listChargesData,
       deliveryAt: this.form.get('deliveryAt')?.value,
       asnNo: this.form.get('asnNo')?.value,
       packType: this.form.get('packType')?.value,
       valueRs: this.form.get('valueRs')?.value,
-      valueOnChalan: this.form.get('valueOnChalan')?.value,
-      whoPay: this.form.get('whoPay')?.value,
-      octroiPay: this.form.get('octroiPay')?.value,
       totalFreight: this.form.get('totalFreight')?.value,
       cgst: this.form.get('cgst')?.value,
       sgst: this.form.get('sgst')?.value,
       igst: this.form.get('igst')?.value,
       grandTotal: this.form.get('grandTotal')?.value,
-      lrStatus: this.lrStatus
+      lrStatus: false
     }
-    this.apiService.addLorryReceipt(formObj).subscribe(res=>{
-      if(res){
+
+    this.apiService.addLorryReceipt(formObj).subscribe(res => {
+      if (res) {
         this.resetForm();
         $.toast({
           heading: 'Lorry Receipt Saved!!',
@@ -615,7 +597,8 @@ export class LorryReceiptComponent {
           loader: false,
         });
       }
-    }, err=>{
+    }, err => {
+      console.log(err);
       $.toast({
         heading: 'Invalid Information!',
         text: 'Please re-login and try again!!' + err,
@@ -628,12 +611,16 @@ export class LorryReceiptComponent {
     });
   }
 
-  deleteLr(){
-    const lrNo = this.form.get('lrNo')?.value;
-    if(lrNo){
-      this.apiService.deleteLrReceipt(lrNo).subscribe(res=>{
-        if(res){
+  deleteLr() {
+    const lrId = this.form.get('lrId')?.value;
+    if (lrId) {
+      this.apiService.deleteLrReceipt(lrId).subscribe(res => {
+        if (res) {
           this.resetForm();
+          if (this.currentRole != 'SUPER_ADMIN') {
+            let message = "LR Deleted!!,  Lorry Receipt is Deleted.";
+            this.webSocketService.sendMessage('/app/sendMessage', message, 'LR-REQUEST');
+          }
           $.toast({
             heading: 'Lorry Receipt Deleted!',
             text: 'You have successfully deleted the LR.',
@@ -644,7 +631,7 @@ export class LorryReceiptComponent {
             loader: false,
           });
         }
-      }, err=>{
+      }, err => {
         $.toast({
           heading: 'Invalid Information!',
           text: 'Please re-login and try again!!' + err,
@@ -657,6 +644,27 @@ export class LorryReceiptComponent {
       });
     }
 
+  }
+
+  isMemoNoExisted(event: any) {
+    const memoNo = event.target.value;
+    this.apiService.isMemoExisted(memoNo).subscribe(res => {
+      if (res) {
+        this.isMemoFound = true;
+        this.form.get("memo.memoNo")?.disable();
+        $.toast({
+          heading: 'Memo Record Found!!',
+          text: 'This memo is found in our record!!',
+          showHideTransition: 'fade',
+          icon: 'info',
+          position: 'bottom-right',
+          bgColor: '#1898a9',
+          loader: false,
+        });
+      }
+    }, err => {
+      console.log(err)
+    })
   }
 
   // ---------------------- Item Query Search ----------------------
@@ -789,7 +797,7 @@ export class LorryReceiptComponent {
   // ------------------- Party Search Query ----------------------
 
   onPartySearch() {
-    const query2 = (this.form.get('party.partyNo')?.value || '').toString().trim().toLowerCase();
+    const query2 = (this.form.get('consignee.partyNo')?.value || '').toString().trim().toLowerCase();
     this.filteredPartyData = this.partyData.filter(
       (p) =>
         p.partyNo.toLowerCase().includes(query2) ||
@@ -811,7 +819,7 @@ export class LorryReceiptComponent {
   confirmPartySelection() {
     if (this.selectedPartyItem) {
       this.form.patchValue({
-        party: {
+        consignee: {
           partyNo: this.selectedPartyItem.partyNo,
           partyName: this.selectedPartyItem.partyName
         }
@@ -822,44 +830,45 @@ export class LorryReceiptComponent {
     }
   }
 
+  // ------------------- Party 2 Search Query ----------------------
 
-  // ------------------- Party Search Query ----------------------
 
-  onVendorSearch() {
-    const query2 = (this.form.get('vendor.vendorCode')?.value || '').toString().trim().toLowerCase();
-    this.filteredVendorData = this.vendorData.filter(
-      (v) =>
-        v.vendorCode.toLowerCase().includes(query2) ||
-        v.vendorName.toLowerCase().includes(query2)
+  onPartySearch2() {
+    const query2 = (this.form.get('consignor.partyNo')?.value || '').toString().trim().toLowerCase();
+    this.filteredPartyData2 = this.partyData2.filter(
+      (p) =>
+        p.partyNo.toLowerCase().includes(query2) ||
+        p.partyName.toLowerCase().includes(query2)
     );
-    this.isVendorModalOpen = query2.length > 0 && this.filteredVendorData.length > 0;
+    this.isPartyModalOpen2 = query2.length > 0 && this.filteredPartyData2.length > 0;
   }
 
-  closeVendorModal() {
-    this.isVendorModalOpen = false;
-    this.selectedVendorItem = null; // Clear the selected item when closing the modal
+  closePartyModal2() {
+    this.isPartyModalOpen2 = false;
+    this.selectedPartyItem2 = null; // Clear the selected item when closing the modal
   }
 
-  selectVendorRow(item: any) {
-    this.selectedVendorItem = item;
-    this.confirmVendorSelection();
+  selectPartyRow2(item: any) {
+    this.selectedPartyItem2 = item;
+    this.confirmPartySelection2();
   }
 
-  confirmVendorSelection() {
-    if (this.selectedVendorItem) {
+  confirmPartySelection2() {
+    if (this.selectedPartyItem2) {
+      console.log(this.selectedPartyItem2)
       this.form.patchValue({
-        vendor: {
-          vendorId: this.selectedVendorItem.vendorId,
-          vendorCode: this.selectedVendorItem.vendorCode,
-          vendorName: this.selectedVendorItem.vendorName
+        consignor: {
+          partyNo: this.selectedPartyItem2.partyNo,
+          partyName: this.selectedPartyItem2.partyName
         }
       });
-      this.closeVendorModal();
+      this.closePartyModal2();
     } else {
       alert('No item selected!');
     }
   }
 
+  // ------------ LR Search Query ------------------
 
   onLrSearch() {
     const query3 = (this.form.get('lrSearchQuery')?.value || '')
@@ -868,7 +877,10 @@ export class LorryReceiptComponent {
       .toLowerCase();
     this.filteredLrData = this.LrData.filter(
       (l) =>
-        l.lrNo.toLowerCase().includes(query3)
+        l.lrNo.toLowerCase().includes(query3) ||
+        l.memo.memoNo.toLowerCase().includes(query3) ||
+        l.consignor.partyName.toLowerCase().includes(query3) ||
+        l.consignee.partyName.toLowerCase().includes(query3)
     );
     this.isLrModalOpen = query3.length > 0 && this.filteredLrData.length > 0;
   }
@@ -885,56 +897,87 @@ export class LorryReceiptComponent {
 
   confirmLrSelection() {
     if (this.selectedLrItem) {
-      if(this.selectedLrItem.lrStatus){
-        this.lrStatus = true;
-      }
-
       this.listItemData = this.selectedLrItem.lorryReceiptItems;
       this.listChargesData = this.selectedLrItem.extraCharges;
-
-      this.listItemData.map((p: any) =>{
+      this.listItemData.map((p: any) => {
         this.total_amount += p.amount;
       });
-
-      this.listChargesData.map((c: any) =>{
+      this.listChargesData.map((c: any) => {
         this.total_charges_amount += c.chargesAmount;
       });
       this.form.patchValue({
+        lrId: this.selectedLrItem.lrId,
         lrNo: this.selectedLrItem.lrNo,
-        branch: { ...this.form.get('branch')?.value, ...this.selectedLrItem.branch },
-        route: { ...this.form.get('route')?.value, ...this.selectedLrItem.route },
-        party: { ...this.form.get('party')?.value, ...this.selectedLrItem.party },
-        vendor: { ...this.form.get('vendor')?.value, ...this.selectedLrItem.vendor },
+        branch: {...this.form.get('branch')?.value, ...this.selectedLrItem.branch},
+        route: {...this.form.get('route')?.value, ...this.selectedLrItem.route},
+        consignee: {...this.form.get('consignee')?.value, ...this.selectedLrItem.consignee},
+        consignor: {...this.form.get('consignor')?.value, ...this.selectedLrItem.consignor},
         remark: this.selectedLrItem.remark,
         whoItemList: this.selectedLrItem.whoItemList,
-        memoNo: this.selectedLrItem.memoNo,
+        memo: {...this.form.get('memo')?.value, ...this.selectedLrItem.memo},
         octBill: this.selectedLrItem.octBill,
-        chalanNo: this.selectedLrItem.chalanNo,
-        chalanDate: this.selectedLrItem.chalanDate,
-        billNo: this.selectedLrItem.billNo,
-        billDate: this.selectedLrItem.billDate,
+        chalan: {...this.form.get('chalan')?.value, ...this.selectedLrItem.chalan},
+        bills: {...this.form.get('bills')?.value, ...this.selectedLrItem.bills},
         unloadDate: this.selectedLrItem.unloadDate,
-        memoDate: this.selectedLrItem.memoDate,
         lrDate: this.selectedLrItem.lrDate,
         refTruckNo: this.selectedLrItem.refTruckNo,
-        lorryReceiptItems: this.selectedLrItem.lorryReceiptItems,
+        lorryReceiptItems: {...this.form.get('lorryReceiptItems')?.value, ...this.selectedLrItem.lorryReceiptItems},
         lrNote: this.selectedLrItem.lrNote,
         stCharges: this.selectedLrItem.stCharges,
         extraCharges: this.selectedLrItem.extraCharges,
-        deliveryAt:  this.selectedLrItem.deliveryAt,
-        asnNo:  this.selectedLrItem.asnNo,
-        packType:  this.selectedLrItem.packType,
-        valueRs:  this.selectedLrItem.valueRs,
-        valueOnChalan:  this.selectedLrItem.valueOnChalan,
-        whoPay:  this.selectedLrItem.whoPay,
-        octroiPay:  this.selectedLrItem.octroiPay,
-        totalFreight:  Number(this.total_amount + this.total_charges_amount).toFixed(2),
-        cgst:  this.selectedLrItem.cgst,
-        sgst:  this.selectedLrItem.sgst,
-        igst:  this.selectedLrItem.igst,
-        grandTotal:  this.selectedLrItem.grandTotal,
+        deliveryAt: this.selectedLrItem.deliveryAt,
+        asnNo: this.selectedLrItem.asnNo,
+        packType: this.selectedLrItem.packType,
+        valueRs: this.selectedLrItem.valueRs,
+        whoPay: this.selectedLrItem.whoPay,
+        octroiPay: this.selectedLrItem.octroiPay,
+        totalFreight: Number(this.total_amount + this.total_charges_amount).toFixed(2),
+        cgst: this.selectedLrItem.cgst,
+        sgst: this.selectedLrItem.sgst,
+        igst: this.selectedLrItem.igst,
+        grandTotal: this.selectedLrItem.grandTotal,
       });
       this.closeLrModal();
+      this.form.get('lrNo')?.disable();
+      this.form.get('memo.memoNo')?.disable();
+    } else {
+      alert('No item selected!');
+    }
+  }
+
+
+
+  // ------------ Vehicle Search Query ------------------
+
+  onVehicleSearch() {
+    const query3 = (this.form.get('refTruckNo')?.value || '')
+      .toString()
+      .trim()
+      .toLowerCase();
+    this.filteredVehicleData = this.listVehicleData.filter(
+      (v) =>
+        v.vehicleNumber.toLowerCase().includes(query3) ||
+        v.driverName.toLowerCase().includes(query3)
+    );
+    this.isVehicleModalOpen = query3.length > 0 && this.filteredVehicleData.length > 0;
+  }
+
+  closeVehicleModal() {
+    this.isVehicleModalOpen = false;
+    this.selectedVehicleItem = null;
+  }
+
+  selectVehicleRow(item: any) {
+    this.selectedVehicleItem = item;
+    this.confirmVehicleSelection();
+  }
+
+  confirmVehicleSelection() {
+    if (this.selectedVehicleItem) {
+      this.form.patchValue({
+        refTruckNo: this.selectedVehicleItem.vehicleNumber
+      });
+      this.closeVehicleModal();
     } else {
       alert('No item selected!');
     }

@@ -27,7 +27,10 @@ import { UserManagementComponent } from './user-management/user-management.compo
 import { RolesPermissionsComponent } from './roles-permissions/roles-permissions.component';
 import { BranchComponent } from './branch/branch.component';
 import { LorryReceiptComponent } from './transactions/lorry-receipt/lorry-receipt.component';
-import { VendorComponent } from './vendor/vendor.component';
+import { LorryRequestComponent } from './transactions/lorry-request/lorry-request.component';
+import { AccountComponent } from './account/account.component';
+import { MisComponent } from './transactions/mis/mis.component';
+import { LorryHireMemoComponent } from './lorry-hire-memo/lorry-hire-memo.component';
 
 
 @NgModule({
@@ -49,7 +52,10 @@ import { VendorComponent } from './vendor/vendor.component';
     RolesPermissionsComponent,
     BranchComponent,
     LorryReceiptComponent,
-    VendorComponent,
+    LorryRequestComponent,
+    AccountComponent,
+    MisComponent,
+    LorryHireMemoComponent,
   ],
   imports: [
     CommonModule,

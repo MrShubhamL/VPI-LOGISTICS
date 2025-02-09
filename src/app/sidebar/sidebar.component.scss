@@ -1,0 +1,12 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: space-between;
+}
+
+.fixed-bottom-item {
+  position: fixed;
+  bottom: 0;
+  background: orange;
+}

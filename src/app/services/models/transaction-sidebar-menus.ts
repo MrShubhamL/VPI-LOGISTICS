@@ -6,11 +6,17 @@ let transaction_menus = [
     permission: 'lorry-receipt'
   },
   {
-    path: 'lorry-receipt-temp',
-    title: 'Lorry Receipt Temp',
-    icon: 'fab fa-watchman-monitoring nav-icon',
-    permission: 'lorry-receipt-temp'
+    path: 'lorry-requests',
+    title: 'Lorry Requests',
+    icon: 'fas fa-receipt nav-icon',
+    permission: 'lorry-requests'
   },
+  // {
+  //   path: 'lorry-receipt-temp',
+  //   title: 'Lorry Receipt Temp',
+  //   icon: 'fab fa-watchman-monitoring nav-icon',
+  //   permission: 'lorry-receipt-temp'
+  // },
   {
     path: 'lorry-hire-memo',
     title: 'Lorry Hire Memo',

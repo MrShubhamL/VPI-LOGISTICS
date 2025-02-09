@@ -1,59 +1,65 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-
+import { Client, IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import Stomp from 'stompjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WebSocketService {
-  private readonly socket: any;  // Use 'any' instead of 'WebSocket'
-  private readonly stompClient: any;
+  private stompClient!: Client;
   private messagesSubject: Subject<any> = new Subject<any>();
 
   constructor() {
-    // Initialize WebSocket and STOMP client
-    this.socket = new SockJS('http://localhost:9090/ws');
-    this.stompClient = Stomp.over(this.socket);
-
-    // Connect to the STOMP server
-    this.stompClient.connect({}, (frame: any) => {
-      console.log('Connected: ' + frame);
-
-      // Subscribe to a topic
-      this.stompClient.subscribe('/topic/notifications', (message: any) => {
-        this.handleMessage(message);
-      });
-    }, (error: any) => {
-      // Handle connection errors here
-      console.error('WebSocket connection error: ', error);
-    });
+    this.initializeWebSocketConnection();
   }
 
-  // Observable to listen for messages
+  private initializeWebSocketConnection(): void {
+    const socket = new SockJS('https://viplogistics.org/notify-app/ws');
+
+    this.stompClient = new Client({
+      webSocketFactory: () => socket,
+      reconnectDelay: 5000,
+    });
+
+    this.stompClient.onConnect = (frame) => {
+      console.log('Connected: ', frame);
+      this.stompClient.subscribe('/topic/notifications', (message: IMessage) => {
+        this.handleMessage(message);
+      });
+    };
+
+    this.stompClient.activate();
+  }
+
   public getMessages(): Observable<any> {
     return this.messagesSubject.asObservable();
   }
 
-  // Send a message
-  public sendMessage(destination: string, message: any): void {
-    if (this.stompClient && this.stompClient.connected) {
-      this.stompClient.send(destination, {}, JSON.stringify(message));
+  private handleMessage(message: IMessage): void {
+    this.messagesSubject.next(JSON.parse(message.body));
+  }
+
+  // ✅ Send message method
+  public sendMessage(destination: string, message: any, messageFor: string): void {
+    if (this.stompClient && this.stompClient.active) {
+      const payload = {
+        ...message,
+        messageFor, // Add the recipient or target of the message
+      };
+      this.stompClient.publish({
+        destination: destination,
+        body: JSON.stringify(payload),
+      });
+    } else {
+      console.error('WebSocket is not connected.');
     }
   }
 
-  // Handle incoming messages
-  private handleMessage(message: any): void {
-    this.messagesSubject.next(message.body);
-  }
-
-  // Disconnect the WebSocket connection
   public disconnect(): void {
-    if (this.stompClient && this.stompClient.connected) {
-      this.stompClient.disconnect(() => {
-        console.log('Disconnected');
-      });
+    if (this.stompClient && this.stompClient.active) {
+      this.stompClient.deactivate();
+      console.log('Disconnected');
     }
   }
 }

@@ -30,6 +30,7 @@ export class PartyComponent implements OnInit {
   page: number = 1;
   itemsPerPage: number = 5;
   searchTerm: string = '';
+
   isModalOpen: boolean = false;
   selectedItem: any = null;
   today: Date = new Date();

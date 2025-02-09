@@ -7,14 +7,16 @@ import {PartyComponent} from './party/party.component';
 import {ItemComponent} from './item/item.component';
 import {authGuard} from './services/guards/auth.guard';
 import {RouteManagerComponent} from './route-manager/route-manager.component';
-import {ChatBoxComponent} from './chat-box/chat-box.component';
 import {VehicleRegistrationComponent} from './vehicle-registration/vehicle-registration.component';
 import {UserManagementComponent} from './user-management/user-management.component';
 import {RolesPermissionsComponent} from './roles-permissions/roles-permissions.component';
 import {PermissionGuard} from './services/guards/permission.guard';
 import {BranchComponent} from './branch/branch.component';
 import {LorryReceiptComponent} from './transactions/lorry-receipt/lorry-receipt.component';
-import {VendorComponent} from './vendor/vendor.component';
+import {LorryRequestComponent} from './transactions/lorry-request/lorry-request.component';
+import {AccountComponent} from './account/account.component';
+import {MisComponent} from './transactions/mis/mis.component';
+import {LorryHireMemoComponent} from './lorry-hire-memo/lorry-hire-memo.component';
 
 const routes: Routes = [
   {
@@ -34,6 +36,12 @@ const routes: Routes = [
       {
         path: "",
         component: HomeComponent,
+      },
+      {
+        path: "create-account",
+        component: AccountComponent,
+        canActivate: [PermissionGuard],
+        data: {permission: 'create-account'}
       },
       {
         path: "create-party",
@@ -77,18 +85,30 @@ const routes: Routes = [
         canActivate: [PermissionGuard],
         data: {permission: 'roles-permissions'}
       },
-      {
-        path: 'create-vendor',
-        component: VendorComponent,
-        canActivate: [PermissionGuard],
-        data: {permission: 'create-vendor'}
-      },
       // ------------ TRANSACTION -----------------
       {
         path: 'lorry-receipt',
         component: LorryReceiptComponent,
         canActivate: [PermissionGuard],
         data: {permission: 'lorry-receipt'}
+      },
+      {
+        path: 'mis',
+        component: MisComponent,
+        canActivate: [PermissionGuard],
+        data: {permission: 'mis'}
+      },
+      {
+        path: 'lorry-requests',
+        component: LorryRequestComponent,
+        canActivate: [PermissionGuard],
+        data: {permission: 'lorry-requests'}
+      },
+      {
+        path: 'lorry-hire-memo',
+        component: LorryHireMemoComponent,
+        canActivate: [PermissionGuard],
+        data: {permission: 'lorry-hire-memo'}
       },
     ]
   }

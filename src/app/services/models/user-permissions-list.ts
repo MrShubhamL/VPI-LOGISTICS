@@ -2,13 +2,13 @@ const userPermissionsList = [
   {
     title: 'Master Access',
     permission: [
-      'account', 'create-party', 'item-records', 'manage-route', 'vehicle-registration', 'user-management', 'create-branch', 'create-vendor'
+      'create-account', 'create-party', 'item-records', 'manage-route', 'vehicle-registration', 'user-management', 'create-branch'
     ]
   },
   {
     title: 'Transaction Access',
     permission: [
-      'lorry-receipt', 'lorry-receipt-temp', 'lorry-hire-memo',
+      'lorry-receipt', 'mis', 'lorry-requests', 'lorry-receipt-temp', 'lorry-hire-memo',
       'freight-bill', 'bill-submission', 'octroi-bill', 'customer-receipt',
       'trip-expenses-voucher', 'other-receipt', 'other-payments', 'journal'
     ]

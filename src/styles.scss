@@ -21,16 +21,9 @@ html, body {
 }
 
 ::-webkit-scrollbar {
-  width: 0px; /* Hide the scrollbar */
+  width: 0; /* Hide the scrollbar */
 }
 
-::-webkit-scrollbar-thumb {
-  background: transparent; /* Make the scrollbar thumb invisible */
-}
-
-::-webkit-scrollbar-track {
-  background: transparent; /* Make the track invisible */
-}
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 
@@ -131,3 +124,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   --select2-material-option-highlighted-text-color: #000;
   --select2-material-option-selected-text-color: #ff5722;
 }
+
+
+

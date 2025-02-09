@@ -16,10 +16,8 @@
 
           <li class="nav-item">
             <a routerLink="/dashboard" class="nav-link active">
-              <i class="nav-icon fas fa-tachometer-alt text-light"></i>
-              <p class="text-light">
-                Dashboard
-              </p>
+              <i class="nav-icon text-white fas fa-tachometer-alt"></i>
+              <p class="text-white">Dashboard</p>
             </a>
           </li>
 
@@ -34,16 +32,16 @@
             <ul class="nav nav-treeview ">
               <ng-container *ngFor="let s of filteredMasterMenus">
                 <li class="nav-item">
-                  <a [routerLink]="s.path" class="nav-link">
-                    <i [class]="s.icon"></i>
-                    <p>{{s.title}}</p>
+                  <a [routerLink]="s.path" class="nav-link" [ngClass]="{'bg-orange': isActive('/dashboard/' + s.path)}">
+                    <i [class]="s.icon" [ngClass]="{'text-white': isActive('/dashboard/' + s.path)}"></i>
+                    <p class="" [ngClass]="{'text-white': isActive('/dashboard/' + s.path)}">{{s.title}}</p>
                   </a>
                 </li>
               </ng-container>
             </ul>
           </li>
 
-          <li class="nav-item menu-open">
+          <li class="nav-item">
             <a class="nav-link">
               <i class="fas fa-tenge nav-icon"></i>
               <p>
@@ -54,19 +52,17 @@
             <ul class="nav nav-treeview ">
               <ng-container *ngFor="let s of filteredTransactionMenus">
                 <li class="nav-item">
-                  <a [routerLink]="s.path" class="nav-link">
-                    <i [class]="s.icon"></i>
-                    <p>{{s.title}}</p>
+                  <a [routerLink]="s.path" class="nav-link" [ngClass]="{'bg-orange': isActive('/dashboard/' + s.path)}">
+                    <i [class]="s.icon" [ngClass]="{'text-white': isActive('/dashboard/' + s.path)}"></i>
+                    <p class="" [ngClass]="{'text-white': isActive('/dashboard/' + s.path)}">{{s.title}}</p>
                   </a>
                 </li>
               </ng-container>
             </ul>
           </li>
 
-
         </ul>
       </nav>
-      <!-- /.sidebar-menu -->
     </div>
     <!-- /.sidebar -->
   </aside>

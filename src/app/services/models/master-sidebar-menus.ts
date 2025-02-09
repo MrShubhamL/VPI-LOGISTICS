@@ -1,9 +1,9 @@
 let master_menus = [
   {
-    path: '/dashboard',
+    path: 'create-account',
     title: 'Account',
     icon: 'fas fa-calculator nav-icon',
-    permission: 'dashboard'
+    permission: 'create-account'
   },
   {
     path: 'create-party',
@@ -46,12 +46,6 @@ let master_menus = [
     title: 'Roles & Permissions',
     icon: 'fas fa-user-lock nav-icon',
     permission: 'roles-permissions'
-  },
-  {
-    path: 'create-vendor',
-    title: 'Create Vendor',
-    icon: 'fas fa-user-lock nav-icon',
-    permission: 'create-vendor'
   },
 ];
 

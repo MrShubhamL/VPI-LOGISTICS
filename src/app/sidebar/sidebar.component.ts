@@ -3,18 +3,23 @@ import {StorageService} from '../services/storage/storage.service';
 import {ApiService} from '../services/api/api.service';
 import master_menus from '../services/models/master-sidebar-menus';
 import transaction_menus from '../services/models/transaction-sidebar-menus';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
   standalone: false,
   templateUrl: './sidebar.component.html',
+  styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent implements OnInit{
   private storage = inject(StorageService);
   private apiService = inject(ApiService);
+  private router = inject(Router);
+
   myPermissions: any[] = [];
   userRoles: any;
   myRole: any;
+  isMenuOpened: boolean = false;
 
   filteredMasterMenus: any[] = [];
   filteredTransactionMenus: any[] = [];
@@ -53,6 +58,10 @@ export class SidebarComponent implements OnInit{
         this.filteredTransactionPermissions.includes(menu.permission)
       );
     });
+  }
+
+  isActive(route: string): boolean {
+    return this.router.url === route;
   }
 
 }

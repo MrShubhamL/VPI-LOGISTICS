@@ -46,7 +46,7 @@ export class UserManagementComponent implements OnInit {
       "aadhar": new FormControl(''),
       "address": new FormControl(''),
       "password": new FormControl(''),
-      "role": new FormControl('', Validators.required),
+      "role": new FormControl('Select User Role', Validators.required),
     });
   }
 
@@ -161,6 +161,7 @@ export class UserManagementComponent implements OnInit {
     this.form.reset();
     this.ngOnInit();
     this.form.get('role')?.enable();
+    this.form.get('role')?.setValue("Select User Role");
   }
 
   formSubmit(){

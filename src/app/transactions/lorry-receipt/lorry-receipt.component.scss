@@ -39,6 +39,41 @@
   top: 10%;
 }
 
+.modal-custom-vehicle-dialog {
+  position: relative;
+  margin: auto;
+  top: 50.7%;
+  left: 20.5%;
+}
+
+.modal-custom-route-dialog {
+  position: relative;
+  margin: auto;
+  top: 20.7%;
+  left: -25px;
+}
+
+.modal-custom-party-dialog {
+  position: relative;
+  margin: auto;
+  top: 30.7%;
+  left: -25px;
+}
+
+.modal-custom-party2-dialog {
+  position: relative;
+  margin: auto;
+  top: 25.7%;
+  left: -25px;
+}
+
+.modal-custom-branch-dialog {
+  position: relative;
+  margin: auto;
+  top: 30%;
+  left: -6.3%;
+}
+
 .modal-content {
   background: #fff;
   border-radius: 4px;
@@ -106,6 +141,20 @@
   background: #E56A10;
 }
 
+.fab-mis-button {
+  background: #FD7E14;
+  color: white;
+  border-radius: 50% !important;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.fab-mis-button:hover {
+  background: #E56A10;
+}
+
 .text-truncate {
   white-space: nowrap;
   overflow: hidden;
@@ -115,4 +164,29 @@
 
 .table-head-text{
   font-size: 0.8rem;
+}
+
+.form-custom-control {
+  border: none;
+  background: transparent;
+  outline: none; /* Removes the default focus outline */
+  box-shadow: none; /* Prevents any focus shadow */
+}
+
+.form-custom-control:focus {
+  border: none;
+  background: transparent;
+  outline: none;
+  box-shadow: none;
+}
+
+.form-custom-control::-webkit-outer-spin-button,
+.form-custom-control::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.custom-placeholder::placeholder {
+  color: green;
+  font-weight: bold;
 }

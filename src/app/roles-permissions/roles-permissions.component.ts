@@ -32,7 +32,7 @@ export class RolesPermissionsComponent implements OnInit {
   ]
 
   userRoles = [
-    '----- Select User Role -----',
+    'Select User Role',
     'ADMIN',
     'MANAGER',
     'DRIVER',
@@ -54,7 +54,7 @@ export class RolesPermissionsComponent implements OnInit {
   private buildForm() {
     this.form = this.formBuilder.group({
       roleId: new FormControl(''),
-      roleName: ['----SELECT USER ROLE----', Validators.required],
+      roleName: ['Select User Role', Validators.required],
       roleDescription: new FormControl('', Validators.required),
       permission: this.formBuilder.group({
         ...this.createPermissionControls(),
@@ -98,7 +98,7 @@ export class RolesPermissionsComponent implements OnInit {
   clearFormData() {
     this.form.reset();
     this.ngOnInit();
-    this.form.get('roleName')?.setValue('----- Select User Role -----');
+    this.form.get('roleName')?.setValue('Select User Role');
   }
 
   formSubmit(): void {
@@ -157,7 +157,7 @@ export class RolesPermissionsComponent implements OnInit {
     this.apiService.updateRole(roleData).subscribe(res => {
       this.clearFormData();
       let message = "Hello there!!,  Permissions has been updated! Please login again. Thank You!!";
-      this.webSocketService.sendMessage('/app/sendMessage', message);
+      this.webSocketService.sendMessage('/app/sendMessage', message, 'ROLE-REQUEST');
       if (res) {
         $.toast({
           heading: 'Role Updated!',

@@ -270,7 +270,7 @@ export class ApiService {
   }
 
   public getLatestMemoNo(): Observable<any> {
-    return this.http.get(BaseUrl + "/api/lorry-receipt/get-latest-memo-no", {
+    return this.http.get(BaseUrl + "/api/lorry-receipt/get-last-memo-no", {
       responseType: 'json'
     });
   }
@@ -288,15 +288,41 @@ export class ApiService {
     });
   }
 
-  public deleteLrReceipt(lrNo : any): Observable<any> {
+  public updateLorryReceiptBillDetails(lrNo: any, lrDate: any, bill: any): Observable<any> {
+    return this.http.put(BaseUrl + "/api/lorry-receipt/update-bill-details", bill,{
+      params: {
+        lrNo: lrNo,
+        lrDate: lrDate
+      },
+      responseType: 'json'
+    });
+  }
+
+  public updateLorryReceiptStatus(lrNo: any, status: any): Observable<any> {
+    return this.http.put(BaseUrl + "/api/lorry-receipt/update-lorry-status", {responseType: 'json'},{
+      params: {
+        lrNo: lrNo,
+        status: status
+      }
+    });
+  }
+
+  public deleteLrReceipt(lrId : any): Observable<any> {
     return this.http.delete(BaseUrl + "/api/lorry-receipt/delete-lorry-receipt",{
-      params: {lrNo : lrNo},
+      params: {lrId : lrId},
       responseType: 'json'
     });
   }
 
   public getAllLorries(): Observable<any>{
     return this.http.get(BaseUrl + "/api/lorry-receipt/get-lorry-receipts", {
+      responseType: 'json'
+    });
+  }
+
+  public isMemoExisted(memoNo: any): Observable<any>{
+    return this.http.get(BaseUrl + "/api/lorry-receipt/check-memo-exists", {
+      params: {memoNo: memoNo},
       responseType: 'json'
     });
   }
@@ -311,6 +337,31 @@ export class ApiService {
 
   public addVendor(vendor: any): Observable<any> {
     return this.http.post(BaseUrl + "/api/vendor/add-vendor", vendor, {
+      responseType: 'json'
+    });
+  }
+
+
+  // --------------------- ACCOUNT REST API -----------------------------
+
+  public createAccount(account: any): Observable<any>{
+    return this.http.post(BaseUrl + '/api/account/create-account', account, {
+      responseType: 'json'
+    });
+  }
+  public updateAccount(account: any): Observable<any>{
+    return this.http.put(BaseUrl + '/api/account/update-account', account, {
+      responseType: 'json'
+    });
+  }
+  public deleteAccount(accountId: any): Observable<any>{
+    return this.http.delete(BaseUrl + '/api/account/delete-account', {
+      params: {accountId : accountId},
+      responseType: 'json'
+    });
+  }
+  public getAccounts(): Observable<any>{
+    return this.http.get(BaseUrl + '/api/account/get-accounts', {
       responseType: 'json'
     });
   }

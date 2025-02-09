@@ -1,0 +1,25 @@
+.custom-search {
+  color: #FD7E14;
+  border-color: #FD7E14;
+}
+
+.custom-search::placeholder {
+  color: #FD7E14;
+}
+
+
+.example-margin {
+  margin: 10px;
+}
+
+.approved-btn {
+  border-radius: 0;
+  background: #FD7E14;
+  color: white;
+}
+
+.rejected-btn {
+  border-radius: 0;
+  border: 1px solid #FD7E14;
+  color: #FD7E14;
+}

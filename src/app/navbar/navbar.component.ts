@@ -45,10 +45,6 @@ export class NavbarComponent implements OnInit {
     });
   }
 
-  // Function to toggle the visibility of the left chat list
-  toggleChatList() {
-    this.isChatListHidden = !this.isChatListHidden;
-  }
 
   ngOnInit(): void {
     this.apiService.getAllUsers().subscribe(res=>{
@@ -62,12 +58,11 @@ export class NavbarComponent implements OnInit {
     this.storageService.logout();
   }
 
-  sendNotification() {}
 
   sendMessage() {
     let message = this.chatForm.get('message')?.value
     if(message){
-      this.webSocketService.sendMessage('/app/sendMessage', message);
+      this.webSocketService.sendMessage('/app/sendMessage', message, 'CHAT-MESSAGE');
       this.chatForm.controls['message'].reset();
     }
   }

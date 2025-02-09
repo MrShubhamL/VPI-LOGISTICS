@@ -1,0 +1,202 @@
+<div class="row">
+  <div class="col-lg-12 mt-2">
+    <div class="card">
+      <div class="card-header bg-orange pt-2 pb-2">
+        <p class="card-title text-white text-sm">
+          <i class="fas fa-info-circle nav-icon mr-2"></i>MIS Report
+        </p>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="form-group">
+              <label class="text-sm pt-2 text-muted w-50">
+                <i class="fas fa-filter mr-2"></i>Filter Data</label>
+              <select class="form-control select2">
+                <option disabled selected value="selected">Select Filter Option</option>
+                <option>Date - Vehicle No.</option>
+                <option>Party Name</option>
+                <option>Part No.</option>
+                <option>Part Name</option>
+                <option>Date</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-lg-2">
+            <div class="form-group">
+              <label class="text-sm pt-2 text-muted w-50">
+                <i class="fas fa-calendar mr-2"></i>Start Date</label>
+              <input type="date" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-2">
+            <div class="form-group">
+              <label class="text-sm pt-2 text-muted w-50">
+                <i class="fas fa-calendar mr-2"></i>End Date</label>
+              <input type="date" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-2">
+            <label class="pt-4"></label>
+            <button type="button" class="btn btn-block bg-orange"><span class="text-sm text-white">Filter</span>
+            </button>
+          </div>
+          <div class="col-lg-2">
+            <label class="pt-4"></label>
+            <button [disabled]="!fileName" type="button" (click)="exportToExcel()" class="btn btn-block bg-orange"><span
+              class="text-sm text-white">Export To Excel</span></button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="form-group d-flex">
+              <label class="text-sm w-25 pt-2 text-muted mr-2">Enter Filename: </label>
+              <input type="text" class="form-control w-100" [(ngModel)]="fileName" placeholder="Enter filename to export">
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="h-scrollable-table">
+              <table class="table table-bordered table-striped">
+                <thead class="text-xs">
+                <tr>
+                  <th>Sr.No</th>
+                  <th>Vendor Code</th>
+                  <th>Vendor Name</th>
+                  <th>Part No.</th>
+                  <th>Part Name</th>
+                  <th>Invoice No.</th>
+                  <th>Invoice Date</th>
+                  <th>Quantity</th>
+                  <th>FTL/LCV</th>
+                  <th>Pack Type</th>
+                  <th>LR No.</th>
+                  <th>LR Date</th>
+                  <th>Vehicle No</th>
+                  <th>Invoice</th>
+                  <th>Bill No</th>
+                  <th>Bill Date</th>
+                  <th>Unload Date</th>
+                  <th>Total Weight</th>
+                  <th>Total Freight</th>
+                  <th>MRNo</th>
+                  <th>PU</th>
+                  <th>ASN No</th>
+                </tr>
+                </thead>
+                <tbody class="text-xs" *ngIf="!isDataLoading">
+                <tr
+                  *ngFor="let lr of filteredLorries | paginate: { itemsPerPage: itemsPerPage, currentPage: page }; let i = index"
+                  class="custom-table-body"
+                  data-toggle="modal" data-target="#lr-update-modal" (click)="editData(lr)">
+                  <td>{{ (page - 1) * itemsPerPage + i + 1 }}</td>
+                  <td *ngFor="let v of lr.lorryReceiptItems">{{v.item.vendorCode}}</td>
+                  <td *ngFor="let v of lr.lorryReceiptItems">{{v.item.party.partyName}}</td>
+                  <td *ngFor="let v of lr.lorryReceiptItems">{{v.item.partNo}}</td>
+                  <td *ngFor="let v of lr.lorryReceiptItems">{{v.item.itemName}}</td>
+                  <td>{{lr.chalan.chalanNo}}</td>
+                  <td>{{lr.chalan.chalanDate}}</td>
+                  <td *ngFor="let v of lr.lorryReceiptItems">{{v.quantity}}</td>
+                  <td *ngFor="let v of lr.lorryReceiptItems">{{v.lcvFtl}}</td>
+                  <td>{{lr.packType}}</td>
+                  <td>{{lr.lrNo}}</td>
+                  <td>{{lr.lrDate}}</td>
+                  <td>{{lr.refTruckNo}}</td>
+                  <td class="text-bold text-green">{{lr.chalan.valueOnChalan}}</td>
+                  <td *ngIf="lr.bill">{{lr.bill.billNo}}</td>
+                  <td *ngIf="lr.bill">{{lr.bill.billDate}}</td>
+                  <td *ngIf="lr.bill">{{lr.bill.unloadDate}}</td>
+                  <td *ngIf="lr.bill == null" class="text-bold text-info">Bill No</td>
+                  <td *ngIf="lr.bill == null" class="text-bold text-info">Bill Date</td>
+                  <td *ngIf="lr.bill == null" class="text-bold text-info">Unload Date</td>
+                  <td *ngFor="let v of lr.lorryReceiptItems">{{v.totalWeight}}</td>
+                  <td>{{lr.grandTotal}}</td>
+                  <td>MRNo</td>
+                  <td *ngFor="let v of lr.lorryReceiptItems">{{v.item.pu}}</td>
+                  <td>{{lr.asnNo}}</td>
+                </tr>
+
+                <div class="modal fade" #modalUpdateLr id="lr-update-modal" tabindex="-1" role="dialog"
+                     aria-labelledby="modal-default-label" aria-hidden="false">
+                  <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header bg-orange pt-2 pb-2">
+                        <p class="modal-title text-md text-white">LR Update Information</p>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="false">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body mt-0 pt-0">
+                        <form [formGroup]="form" (ngSubmit)="formSubmit(modalUpdateLr)" class="m-0 p-0">
+                          <div class="row p-0 m-0">
+                            <div class="col-lg-4 m-0">
+                              <div class="form-group p-0 m-0">
+                                <label>LR No</label>
+                                <input formControlName="lrNo" type="number" readonly class="form-control">
+                              </div>
+                            </div>
+                            <div class="col-lg-4 m-0">
+                              <div class="form-group p-0 m-0">
+                                <label>LR Date</label>
+                                <input formControlName="lrDate" type="date" readonly class="form-control">
+                              </div>
+                            </div>
+                            <div class="col-lg-4 m-0">
+                              <div class="form-group p-0 m-0">
+                                <label>Bill No</label>
+                                <input formControlName="billNo" type="number" class="form-control"
+                                       placeholder="Enter bill no">
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row p-0 m-0">
+                            <div class="col-lg-4 m-0">
+                              <div class="form-group p-0 m-0">
+                                <label>Bill Date</label>
+                                <input formControlName="billDate" type="date" class="form-control">
+                              </div>
+                            </div>
+                            <div class="col-lg-4 m-0">
+                              <div class="form-group p-0 m-0">
+                                <label>Unload Date</label>
+                                <input formControlName="unloadDate" type="date" class="form-control">
+                              </div>
+                            </div>
+                            <div class="col-lg-4 m-0">
+                              <div class="form-group p-0 m-0">
+                                <label>Bill RNo</label>
+                                <input formControlName="billRNo" type="number" class="form-control"
+                                       placeholder="Enter bill RNo">
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row mt-2">
+                            <div class="col-lg-6">
+                              <button type="submit" class="btn btn-block bg-orange"><span class="text-white">Save</span>
+                              </button>
+                            </div>
+                            <div class="col-lg-6">
+                              <button type="button" class="btn btn-block bg-orange" data-dismiss="modal"
+                                      aria-label="Close"><span class="text-white">Cancel</span></button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                </tbody>
+              </table>
+              <div *ngIf="isDataLoading" class="loading-overlay">
+                <mat-spinner diameter="70"></mat-spinner>
+              </div>
+              <pagination-controls (pageChange)="page = $event"></pagination-controls>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

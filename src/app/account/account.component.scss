@@ -1,23 +1,25 @@
-* {
-  font-size: 0.8rem;
+.w-30 {
+  width: 30% !important;
 }
 
-.scrollable-card {
-  height: 450px;
-  overflow-y: auto;
+.w-45 {
+  width: 45% !important;
 }
 
-.toast-clickable {
-  cursor: pointer;
+
+.custom-search {
+  color: #FD7E14;
+  border-color: #FD7E14;
 }
 
-.toast-clickable:hover {
-  opacity: 0.8;
+.custom-search::placeholder {
+  color: #FD7E14;
 }
+
 
 .fab-container {
   position: fixed;
-  bottom: 40px;  /* Adjust as needed */
+  bottom: 60px;  /* Adjust as needed */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -34,6 +36,7 @@
   width: 120px;
   height: 35px;
 }
+
 
 .fab-button:hover {
   background: #E56A10;
